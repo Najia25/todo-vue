@@ -9,6 +9,8 @@
   },
   "dependencies": {
     "core-js": "^3.6.4",
+    "node-sass": "^4.13.1",
+    "sass-loader": "^8.0.2",
     "vue": "^2.6.11",
     "vuex": "^3.1.2"
   },
@@ -36,10 +38,20 @@
       "plugin:vue/essential",
       "@vue/standard"
     ],
+    "rules": {},
     "parserOptions": {
       "parser": "babel-eslint"
     },
-    "rules": {}
+    "overrides": [
+      {
+        "files": [
+          "**/__tests__/*.{j,t}s?(x)"
+        ],
+        "env": {
+          "mocha": true
+        }
+      }
+    ]
   },
   "browserslist": [
     "> 1%",
