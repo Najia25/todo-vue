@@ -29,7 +29,7 @@ export default {
 }
 
 .container {
-  width:600px;
+  width: 600px;
   margin:0 auto;
   /* text-align: center; */
 }
@@ -42,6 +42,16 @@ export default {
   display:block;
   height:75px;
   margin:30px auto;
+}
+
+@media (max-width: 575px) {
+  .container {
+    width: auto;
+    padding:0px 15px;
+  }
+  #app {
+    font-size:16px;
+  }
 }
 
 </style>
