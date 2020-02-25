@@ -31,6 +31,9 @@
   },
   "eslintConfig": {
     "root": true,
+    "globals": {
+      "eventHub": "writable"
+    },
     "env": {
       "node": true
     },
@@ -38,7 +41,8 @@
       "plugin:vue/essential",
       "@vue/standard"
     ],
-    "rules": {},
+    "rules": {
+    },
     "parserOptions": {
       "parser": "babel-eslint"
     },

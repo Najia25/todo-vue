@@ -2,125 +2,67 @@
   <div>
     <input type="text" class="todo-input" placeholder="To what you have to do" v-model="itemTitle" @keyup.enter="addItem">
     <transition-group name="fade" enter-active-class="animated fadeInUp" leave-active-class="animated fadeOutDown">
-      <div v-for="(item, index) in filteredItems" :key="item.id" class="flex-container">
-        <div class="item-left">
-          <!-- Here original items array is manipulated -->
-          <input type="checkbox" v-model="item.completed">
-          <p v-if="!item.editing" @dblclick="editItem(item)" :class="{'item-completed':item.completed}">{{ item.title }}</p>
-          <input v-else type="text" v-model="item.title" v-focus @keyup.enter="doneEditItem(item)" @blur="doneEditItem(item)" class="todo-input" @keyup.esc="cancelEditItem(item)">
-        </div>
-        <p @click="removeItem(index)">&times;</p>
-      </div>
+      <todo-item v-for="item in filteredItems"
+      :key="item.id"
+      class="flex-container"
+      :item="item">
+      </todo-item>
     </transition-group>
-    <div class="bottom-part flex-container">
-      <div>
-        <label><input type="checkbox" :checked="notAnyRemaining" @change="checkAllItems">Check All</label>
+      <div class="bottom-part flex-container">
+        <check-all></check-all>
+        <remaining-items></remaining-items>
       </div>
-      <div>
-        {{ remaining }} Items left
+      <div class="bottom-part flex-container">
+        <filter-buttons></filter-buttons>
+        <transition name="fade">
+          <clear-completed :itemsCleared="itemsCleared"></clear-completed>
+        </transition>
       </div>
-    </div>
-    <div class="bottom-part flex-container">
-      <div class="filter-buttons">
-        <button :class="{active: filter === 'all'}" @click="filter = 'all'">All</button>
-        <button :class="{active: filter === 'active'}" @click="filter = 'active'">Active</button>
-        <button :class="{active: filter === 'completed'}" @click="filter = 'completed'">Completed</button>
-      </div>
-      <transition name="fade">
-        <button class="clear" @click="clearCompleted" v-if="itemsCleared">Clear completed</button>
-      </transition>
-    </div>
   </div>
 </template>
 
 <script>
+
+import TodoItem from './TodoItem.vue'
+import RemainingItems from './RemainingItems.vue'
+import CheckAll from './CheckAll.vue'
+import ClearCompleted from './ClearCompleted.vue'
+import FilterButtons from './FilterButtons.vue'
+
+import { mapState, mapGetters } from 'vuex'
+
 export default {
+  name: 'todo-list',
+  components: {
+    TodoItem,
+    RemainingItems,
+    CheckAll,
+    ClearCompleted,
+    FilterButtons
+  },
   data () {
     return {
       itemTitle: '',
-      items: [
-        {
-          id: 1,
-          title: 'Finish vue screencast',
-          completed: false,
-          editing: false
-        },
-        {
-          id: 2,
-          title: 'To take over world',
-          completed: false,
-          editing: false
-        }
-      ],
-      beforeEditCache: '',
-      filter: 'all'
-    }
-  },
-  directives: {
-    focus: {
-      inserted: function (el) {
-        el.focus()
-      }
+      beforeEditCache: ''
     }
   },
   computed: {
-    remaining () {
-      return this.items.filter(item => !item.completed).length
-    },
-    notAnyRemaining () {
-      return this.remaining === 0
-    },
-    filteredItems () {
-      if (this.filter === 'all') {
-        return this.items
-      } else if (this.filter === 'active') {
-        return this.items.filter(item => item.completed === false)
-      } else if (this.filter === 'completed') {
-        return this.items.filter(item => item.completed === true)
-      }
-      return this.items
-    },
-    itemsCleared () {
-      return this.items.filter(item => item.completed === true).length > 0
-    }
+    ...mapState(['items', 'filter']),
+    ...mapGetters(['remaining', 'notAnyRemaining', 'filteredItems', 'itemsCleared'])
   },
   methods: {
     addItem () {
       const title = this.itemTitle.trim()
       if (title) {
         const id = this.items.length + 1
-        this.items.push({
-          id,
-          title,
-          completed: false
-        })
+        this.$store.dispatch('addItem',
+          {
+            id,
+            title,
+            completed: false
+          })
         this.itemTitle = ''
       }
-    },
-    removeItem (index) {
-      this.items.splice(index, 1)
-    },
-    editItem (item) {
-      this.beforeEditCache = item.title
-      item.editing = true
-    },
-    doneEditItem (item) {
-      if (item.title.trim() === '') {
-        item.title = this.beforeEditCache
-      }
-      item.editing = false
-    },
-    cancelEditItem (item) {
-      item.title = this.beforeEditCache
-      item.editing = false
-    },
-    checkAllItems () {
-      this.items.forEach(item => {
-        item.completed = event.target.checked
-      })
-    },
-    clearCompleted () {
-      this.items = this.items.filter(item => item.completed === false)
     }
   }
 }
@@ -193,10 +135,13 @@ button.clear {
 .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
   opacity: 0;
 }
-
+.slideInUp {
+  animation-duration: .3s;
+  animation-delay: 0s;
+}
 .fadeInUp, .fadeOutDown {
   animation-duration: .3s;
-  animation-delay: .3s;
+  animation-delay: 0s;
 }
 @media (max-width: 575px) {
   .filter-buttons button {
